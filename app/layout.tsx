@@ -15,6 +15,16 @@ export const metadata: Metadata = {
   verification: {
     google: "8ZSG2kPJ1T22r6Fb5gFiMiqJTvJ87eUkkprNqh5XfoE",
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   openGraph: {
     type: "website",
     url: siteConfig.url,
@@ -47,4 +57,4 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </body>
     </html>
   );
-}
+      }
