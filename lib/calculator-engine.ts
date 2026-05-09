@@ -37,6 +37,39 @@ const safeDivide = (numerator: number, denominator: number, fallback = 0) => {
   return numerator / denominator;
 };
 
+/**
+ * Validates a single input value with custom error messages
+ */
+const validateInput = (value: unknown, fieldLabel: string): { valid: boolean; numericValue: number; error?: string } => {
+  const strValue = String(value ?? "").trim();
+  
+  // Empty check
+  if (strValue === "" || strValue === "0" && String(value) === "0") {
+    const parsed = number(value, NaN);
+    if (isNaN(parsed)) {
+      return { valid: false, numericValue: 0, error: "Please enter a value" };
+    }
+  }
+  
+  const numValue = number(value, NaN);
+  
+  // Check if parsed successfully
+  if (!Number.isFinite(numValue)) {
+    return { valid: false, numericValue: 0, error: "Please enter a value" };
+  }
+  
+  // Zero check
+  if (numValue === 0) {
+    return { valid: false, numericValue: 0, error: "Must be greater than 0" };
+  }
+  
+  // Negative check
+  if (numValue < 0) {
+    return { valid: false, numericValue: 0, error: "Please enter positive number" };
+  }
+  
+  return { valid: true, numericValue };
+};
 
 export function getFields(calculator: Calculator): CalculatorField[] {
   const variant = calculator.variant;
@@ -63,6 +96,7 @@ export function getFields(calculator: Calculator): CalculatorField[] {
       return [
         { name: "principal", label: "Principal", type: "number", step: "any", defaultValue: "10000" },
         { name: "rate", label: "Annual return (%)", type: "number", step: "any", defaultValue: "7" },
+        { name: "compoundingFrequency", label: "Compounding frequency per year", type: "number", step: "1", defaultValue: "12" },
         { name: "years", label: "Years", type: "number", step: "any", defaultValue: "15" },
       ];
     case "breakEven":
@@ -454,42 +488,113 @@ export function computeCalculator(calculator: Calculator, values: Record<string,
       };
     }
     case "compound": {
+      // Formula: A = P × (1 + r/n)^(n×t)
+      // where P = principal, r = annual rate (decimal), n = compounding frequency, t = time in years
       const principal = positiveNumber(values.principal);
-      const rate = Math.max(0, number(values.rate));
+      const rate = Math.max(0, number(values.rate)) / 100; // Convert percentage to decimal
+      const frequency = Math.max(1, positiveNumber(values.compoundingFrequency, 12)); // Default to monthly (12)
       const years = positiveNumber(values.years);
-      const monthlyRate = rate / 100 / 12;
-      const periods = Math.max(0, Math.round(years * 12));
-      const future = monthlyRate === 0 ? principal : principal * Math.pow(1 + monthlyRate, periods);
+      
+      // Prevent invalid calculations
+      if (principal <= 0 || years <= 0) {
+        return {
+          primaryLabel: "Future value",
+          primaryValue: "—",
+          supporting: [
+            { label: "Principal", value: "—" },
+            { label: "Estimated gain", value: "—" },
+          ],
+        };
+      }
+      
+      const exponent = frequency * years;
+      const base = 1 + rate / frequency;
+      const future = principal * Math.pow(base, exponent);
+      
       return {
         primaryLabel: "Future value",
-        primaryValue: `$${round(future)}`,
+        primaryValue: Number.isFinite(future) ? `$${round(future)}` : "—",
         supporting: [
           { label: "Principal", value: `$${round(principal)}` },
-          { label: "Estimated gain", value: `$${round(future - principal)}` },
+          { label: "Estimated gain", value: Number.isFinite(future) ? `$${round(Math.max(0, future - principal))}` : "—" },
         ],
       };
     }
     case "breakEven": {
-      const fixed = v("fixed");
-      const price = v("price", 1);
-      const variable = v("variable");
-      const units = price > variable ? fixed / (price - variable) : 0;
+      const fixed = positiveNumber(values.fixed);
+      const price = positiveNumber(values.price);
+      const variable = positiveNumber(values.variable);
+      
+      // Guard: if Price <= Variable, show error
+      if (price <= variable) {
+        return {
+          primaryLabel: "Break-even units",
+          primaryValue: "Error: Price must exceed variable cost",
+          supporting: [
+            { label: "Fixed cost", value: `$${round(fixed)}` },
+            { label: "Issue", value: "Price ≤ Variable cost" },
+          ],
+        };
+      }
+      
+      // Units = Fixed / (Price - Variable)
+      const contribution = price - variable;
+      const units = fixed > 0 ? fixed / contribution : 0;
+      
       return {
         primaryLabel: "Break-even units",
-        primaryValue: round(units),
+        primaryValue: round(units, 0),
         supporting: [
           { label: "Fixed cost", value: `$${round(fixed)}` },
-          { label: "Contribution per unit", value: `$${round(price - variable)}` },
+          { label: "Contribution per unit", value: `$${round(contribution)}` },
         ],
       };
     }
     case "loan": {
+      // EMI Formula: EMI = P × r × (1+r)^n / ((1+r)^n - 1)
+      // where P = principal, r = monthly rate (annual_rate/100/12), n = number of months (years × 12)
       const amount = positiveNumber(values.amount);
-      const rate = Math.max(0, number(values.rate));
-      const years = Math.max(1, positiveNumber(values.years, 1));
-      const monthlyRate = rate / 100 / 12;
-      const n = Math.max(1, Math.round(years * 12));
-      const payment = monthlyRate === 0 ? safeDivide(amount, n) : safeDivide(amount * monthlyRate, 1 - Math.pow(1 + monthlyRate, -n));
+      const annualRate = Math.max(0, number(values.rate));
+      const years = Math.max(0, positiveNumber(values.years, 1));
+      
+      // Validate inputs
+      if (amount <= 0 || years <= 0) {
+        return {
+          primaryLabel: "Monthly payment",
+          primaryValue: "—",
+          supporting: [
+            { label: "Loan amount", value: "—" },
+            { label: "Total paid", value: "—" },
+          ],
+        };
+      }
+      
+      const monthlyRate = annualRate / 100 / 12;
+      const n = Math.round(years * 12);
+      
+      let payment: number;
+      if (monthlyRate === 0) {
+        // No interest
+        payment = amount / n;
+      } else {
+        // EMI = P × r × (1+r)^n / ((1+r)^n - 1)
+        const numerator = amount * monthlyRate * Math.pow(1 + monthlyRate, n);
+        const denominator = Math.pow(1 + monthlyRate, n) - 1;
+        payment = numerator / denominator;
+      }
+      
+      // Guard against NaN/Infinity
+      if (!Number.isFinite(payment) || payment < 0) {
+        return {
+          primaryLabel: "Monthly payment",
+          primaryValue: "—",
+          supporting: [
+            { label: "Loan amount", value: `$${round(amount)}` },
+            { label: "Total paid", value: "—" },
+          ],
+        };
+      }
+      
       return {
         primaryLabel: "Monthly payment",
         primaryValue: `$${round(payment)}`,
@@ -505,9 +610,41 @@ export function computeCalculator(calculator: Calculator, values: Record<string,
       const rate = Math.max(0, number(values.rate));
       const years = Math.max(1, positiveNumber(values.years, 30));
       const amount = Math.max(0, price - down);
+      
+      if (amount <= 0 || years <= 0) {
+        return {
+          primaryLabel: "Estimated mortgage payment",
+          primaryValue: "—",
+          supporting: [
+            { label: "Loan amount", value: "—" },
+            { label: "Down payment", value: `$${round(down)}` },
+          ],
+        };
+      }
+      
       const monthlyRate = rate / 100 / 12;
-      const n = Math.max(1, Math.round(years * 12));
-      const payment = monthlyRate === 0 ? safeDivide(amount, n) : safeDivide(amount * monthlyRate, 1 - Math.pow(1 + monthlyRate, -n));
+      const n = Math.round(years * 12);
+      let payment: number;
+      
+      if (monthlyRate === 0) {
+        payment = amount / n;
+      } else {
+        const numerator = amount * monthlyRate * Math.pow(1 + monthlyRate, n);
+        const denominator = Math.pow(1 + monthlyRate, n) - 1;
+        payment = numerator / denominator;
+      }
+      
+      if (!Number.isFinite(payment) || payment < 0) {
+        return {
+          primaryLabel: "Estimated mortgage payment",
+          primaryValue: "—",
+          supporting: [
+            { label: "Loan amount", value: `$${round(amount)}` },
+            { label: "Down payment", value: `$${round(down)}` },
+          ],
+        };
+      }
+      
       return {
         primaryLabel: "Estimated mortgage payment",
         primaryValue: `$${round(payment)}`,
@@ -583,13 +720,38 @@ export function computeCalculator(calculator: Calculator, values: Record<string,
       };
     }
     case "bmi": {
+      // BMI = weight(kg) / height(m)²
+      // Categories: <18.5 underweight, 18.5-24.9 normal, 25-29.9 overweight, ≥30 obese
       const weight = positiveNumber(values.weight);
       const height = Math.max(0.01, positiveNumber(values.height, 1));
-      const bmi = safeDivide(weight, height * height);
-      const category = bmi < 18.5 ? "Underweight" : bmi < 25 ? "Healthy" : bmi < 30 ? "Overweight" : "Higher range";
+      
+      if (weight <= 0 || height <= 0) {
+        return {
+          primaryLabel: "BMI",
+          primaryValue: "—",
+          supporting: [
+            { label: "Category", value: "—" },
+            { label: "Weight", value: "—" },
+          ],
+        };
+      }
+      
+      const bmi = weight / (height * height);
+      
+      let category = "—";
+      if (bmi < 18.5) {
+        category = "Underweight";
+      } else if (bmi < 25) {
+        category = "Normal weight";
+      } else if (bmi < 30) {
+        category = "Overweight";
+      } else {
+        category = "Obese";
+      }
+      
       return {
         primaryLabel: "BMI",
-        primaryValue: round(bmi),
+        primaryValue: Number.isFinite(bmi) ? round(bmi) : "—",
         supporting: [
           { label: "Category", value: category },
           { label: "Weight", value: `${round(weight)} kg` },
@@ -781,14 +943,29 @@ export function computeCalculator(calculator: Calculator, values: Record<string,
         };
       }
       if (variant === "exponent") {
-        return { primaryLabel: "Result", primaryValue: round(Math.pow(a, b)), supporting: [{ label: "Base", value: round(a) }, { label: "Power", value: round(b) }] };
+        const result = Math.pow(a, b);
+        return { 
+          primaryLabel: "Result", 
+          primaryValue: Number.isFinite(result) ? round(result) : "—", 
+          supporting: [{ label: "Base", value: round(a) }, { label: "Power", value: round(b) }] 
+        };
       }
       if (variant === "logarithm") {
         const base = Math.max(b, 2);
-        return { primaryLabel: "Log result", primaryValue: round(safeDivide(Math.log(Math.max(a, 1)), Math.log(base))), supporting: [{ label: "Value", value: round(a) }, { label: "Base", value: round(base) }] };
+        const result = a > 0 ? Math.log(a) / Math.log(base) : NaN;
+        return { 
+          primaryLabel: "Log result", 
+          primaryValue: Number.isFinite(result) ? round(result) : "—", 
+          supporting: [{ label: "Value", value: round(a) }, { label: "Base", value: round(base) }] 
+        };
       }
       if (variant === "square-root") {
-        return { primaryLabel: "Square root", primaryValue: round(Math.sqrt(Math.abs(a))), supporting: [{ label: "Input", value: round(a) }] };
+        const result = Math.sqrt(Math.abs(a));
+        return { 
+          primaryLabel: "Square root", 
+          primaryValue: Number.isFinite(result) ? round(result) : "—", 
+          supporting: [{ label: "Input", value: round(a) }] 
+        };
       }
       if (variant === "permutation") {
         const n = Math.max(0, Math.round(a));
@@ -837,17 +1014,41 @@ export function computeCalculator(calculator: Calculator, values: Record<string,
       if (variant === "bmi") {
         const weight = positiveNumber(values.weight);
         const height = Math.max(0.01, positiveNumber(values.height, 1));
-        const bmi = safeDivide(weight, height * height);
+        
+        if (weight <= 0 || height <= 0) {
+          return {
+            primaryLabel: "BMI",
+            primaryValue: "—",
+            supporting: [{ label: "Category", value: "—" }],
+          };
+        }
+        
+        const bmi = weight / (height * height);
+        let category = "—";
+        if (bmi < 18.5) category = "Underweight";
+        else if (bmi < 25) category = "Normal weight";
+        else if (bmi < 30) category = "Overweight";
+        else category = "Obese";
+        
         return {
           primaryLabel: "BMI",
-          primaryValue: round(bmi),
-          supporting: [{ label: "Category", value: bmi < 18.5 ? "Underweight" : bmi < 25 ? "Healthy" : bmi < 30 ? "Overweight" : "Higher range" }],
+          primaryValue: Number.isFinite(bmi) ? round(bmi) : "—",
+          supporting: [{ label: "Category", value: category }],
         };
       }
       if (variant === "body-fat") {
         const weight = positiveNumber(values.weight);
         const height = Math.max(0.01, positiveNumber(values.height, 1));
-        const bmi = safeDivide(weight, height * height);
+        
+        if (weight <= 0 || height <= 0) {
+          return {
+            primaryLabel: "Body fat estimate",
+            primaryValue: "—",
+            supporting: [{ label: "BMI reference", value: "—" }],
+          };
+        }
+        
+        const bmi = weight / (height * height);
         const bodyFat = Math.max(0, bmi * 1.2 + 8.5 - 5.4);
         return {
           primaryLabel: "Body fat estimate",
@@ -858,6 +1059,15 @@ export function computeCalculator(calculator: Calculator, values: Record<string,
       if (variant === "calorie-needs" || variant === "bmr") {
         const weight = positiveNumber(values.weight);
         const activity = Math.max(0, number(values.activity, 1));
+        
+        if (weight <= 0) {
+          return {
+            primaryLabel: "Estimated calories",
+            primaryValue: "—",
+            supporting: [{ label: "Weight", value: "—" }],
+          };
+        }
+        
         return {
           primaryLabel: "Estimated calories",
           primaryValue: `${round(weight * activity * 24, 0)} kcal`,
@@ -867,6 +1077,15 @@ export function computeCalculator(calculator: Calculator, values: Record<string,
       if (variant === "ideal-weight") {
         const height = Math.max(0.01, positiveNumber(values.height, 1));
         const frame = Math.max(0, number(values.frame, 22));
+        
+        if (height <= 0) {
+          return {
+            primaryLabel: "Target weight",
+            primaryValue: "—",
+            supporting: [{ label: "Height", value: "—" }],
+          };
+        }
+        
         return {
           primaryLabel: "Target weight",
           primaryValue: `${round(height * height * frame, 0)} kg`,
@@ -877,49 +1096,143 @@ export function computeCalculator(calculator: Calculator, values: Record<string,
         const age = Math.max(0, positiveNumber(values.age));
         const intensity = Math.max(0, number(values.intensity));
         const max = Math.max(0, 220 - age);
-        return { primaryLabel: "Target heart rate", primaryValue: `${round((max * intensity) / 100, 0)} bpm`, supporting: [{ label: "Max heart rate", value: `${round(max, 0)} bpm` }] };
+        return { 
+          primaryLabel: "Target heart rate", 
+          primaryValue: `${round((max * intensity) / 100, 0)} bpm`, 
+          supporting: [{ label: "Max heart rate", value: `${round(max, 0)} bpm` }] 
+        };
       }
       if (variant === "water-intake" || variant === "hydration-goal") {
         const weight = positiveNumber(values.weight);
         const multiplier = Math.max(0, number(values.multiplier));
-        return { primaryLabel: "Daily water goal", primaryValue: `${round((weight * multiplier) / 1000, 1)} L`, supporting: [{ label: "Weight", value: `${round(weight)} kg` }] };
+        
+        if (weight <= 0) {
+          return { 
+            primaryLabel: "Daily water goal", 
+            primaryValue: "—", 
+            supporting: [{ label: "Weight", value: "—" }] 
+          };
+        }
+        
+        return { 
+          primaryLabel: "Daily water goal", 
+          primaryValue: `${round((weight * multiplier) / 1000, 1)} L`, 
+          supporting: [{ label: "Weight", value: `${round(weight)} kg` }] 
+        };
       }
       if (variant === "pregnancy-due-date" || variant === "ovulation") {
         const start = new Date(String(values.startDate || "2026-01-01"));
-        const due = new Date(start.getTime() + 280 * 24 * 60 * 60 * 1000);
-        return { primaryLabel: "Estimated date", primaryValue: Number.isNaN(start.getTime()) ? "—" : due.toISOString().slice(0, 10), supporting: [{ label: "Start date", value: Number.isNaN(start.getTime()) ? "—" : start.toISOString().slice(0, 10) }] };
+        const valid = !Number.isNaN(start.getTime());
+        const due = valid ? new Date(start.getTime() + 280 * 24 * 60 * 60 * 1000) : new Date();
+        return { 
+          primaryLabel: "Estimated date", 
+          primaryValue: valid ? due.toISOString().slice(0, 10) : "—", 
+          supporting: [{ label: "Start date", value: valid ? start.toISOString().slice(0, 10) : "—" }] 
+        };
       }
       if (variant === "waist-to-height-ratio") {
         const waist = positiveNumber(values.waist);
         const height = Math.max(0.01, positiveNumber(values.height));
-        return { primaryLabel: "Ratio", primaryValue: round(safeDivide(waist, height)), supporting: [{ label: "Waist", value: `${round(waist)} cm` }, { label: "Height", value: `${round(height)} cm` }] };
+        
+        if (waist <= 0 || height <= 0) {
+          return { 
+            primaryLabel: "Ratio", 
+            primaryValue: "—", 
+            supporting: [{ label: "Waist", value: "—" }, { label: "Height", value: "—" }] 
+          };
+        }
+        
+        const ratio = waist / height;
+        return { 
+          primaryLabel: "Ratio", 
+          primaryValue: Number.isFinite(ratio) ? round(ratio) : "—", 
+          supporting: [{ label: "Waist", value: `${round(waist)} cm` }, { label: "Height", value: `${round(height)} cm` }] 
+        };
       }
       if (variant === "pace") {
         const distance = Math.max(0.01, positiveNumber(values.distance));
         const time = positiveNumber(values.time);
-        return { primaryLabel: "Pace", primaryValue: `${round(safeDivide(time, distance))} min/km`, supporting: [{ label: "Distance", value: `${round(distance)} km` }] };
+        
+        if (distance <= 0) {
+          return { 
+            primaryLabel: "Pace", 
+            primaryValue: "—", 
+            supporting: [{ label: "Distance", value: "—" }] 
+          };
+        }
+        
+        const pace = time / distance;
+        return { 
+          primaryLabel: "Pace", 
+          primaryValue: `${Number.isFinite(pace) ? round(pace) : "—"} min/km`, 
+          supporting: [{ label: "Distance", value: `${round(distance)} km` }] 
+        };
       }
       if (variant === "steps-to-calories") {
         const steps = positiveNumber(values.steps);
         const weight = positiveNumber(values.weight);
-        return { primaryLabel: "Calories burned", primaryValue: `${round(steps * 0.04 * safeDivide(weight, 70, 1), 0)} kcal`, supporting: [{ label: "Steps", value: round(steps, 0) }] };
+        
+        if (weight <= 0) {
+          return { 
+            primaryLabel: "Calories burned", 
+            primaryValue: "—", 
+            supporting: [{ label: "Steps", value: "—" }] 
+          };
+        }
+        
+        const calories = steps * 0.04 * (weight / 70);
+        return { 
+          primaryLabel: "Calories burned", 
+          primaryValue: `${round(calories, 0)} kcal`, 
+          supporting: [{ label: "Steps", value: round(steps, 0) }] 
+        };
       }
       if (variant === "sleep-duration") {
         const bed = number(values.bed);
         const wake = number(values.wake);
         const hours = ((wake - bed) + 24) % 24;
-        return { primaryLabel: "Sleep duration", primaryValue: `${round(hours, 0)} hours`, supporting: [{ label: "Bedtime", value: String(bed) }, { label: "Wake time", value: String(wake) }] };
+        return { 
+          primaryLabel: "Sleep duration", 
+          primaryValue: `${round(hours, 0)} hours`, 
+          supporting: [{ label: "Bedtime", value: String(bed) }, { label: "Wake time", value: String(wake) }] 
+        };
       }
       if (variant === "protein-intake") {
         const weight = positiveNumber(values.weight);
         const multiplier = Math.max(0, number(values.multiplier));
-        return { primaryLabel: "Protein target", primaryValue: `${round(weight * multiplier, 0)} g`, supporting: [{ label: "Weight", value: `${round(weight)} kg` }] };
+        
+        if (weight <= 0) {
+          return { 
+            primaryLabel: "Protein target", 
+            primaryValue: "—", 
+            supporting: [{ label: "Weight", value: "—" }] 
+          };
+        }
+        
+        return { 
+          primaryLabel: "Protein target", 
+          primaryValue: `${round(weight * multiplier, 0)} g`, 
+          supporting: [{ label: "Weight", value: `${round(weight)} kg` }] 
+        };
       }
       if (variant === "body-surface-area") {
         const height = positiveNumber(values.height);
         const weight = positiveNumber(values.weight);
-        const bsa = Math.sqrt(Math.max(0, safeDivide(height * weight, 3600)));
-        return { primaryLabel: "BSA", primaryValue: `${round(bsa, 2)} m²`, supporting: [{ label: "Height", value: `${round(height)} cm` }, { label: "Weight", value: `${round(weight)} kg` }] };
+        
+        if (height <= 0 || weight <= 0) {
+          return { 
+            primaryLabel: "BSA", 
+            primaryValue: "—", 
+            supporting: [{ label: "Height", value: "—" }, { label: "Weight", value: "—" }] 
+          };
+        }
+        
+        const bsa = Math.sqrt(Math.max(0, (height * weight) / 3600));
+        return { 
+          primaryLabel: "BSA", 
+          primaryValue: `${Number.isFinite(bsa) ? round(bsa, 2) : "—"} m²`, 
+          supporting: [{ label: "Height", value: `${round(height)} cm` }, { label: "Weight", value: `${round(weight)} kg` }] 
+        };
       }
       return { primaryLabel: "Result", primaryValue: "—", supporting: [] };
     }
