@@ -1,4 +1,5 @@
 export type FormulaType =
+  import { financialContentOverrides } from './financial-content-overrides';
   | 'percentage'
   | 'ratio'
   | 'growth'
@@ -643,6 +644,7 @@ function buildCalculator(categorySlug: keyof typeof topicSeeds, index: number): 
   const category = categories.find((item) => item.slug === categorySlug)!;
   const variant = variantSeeds[categorySlug][index];
   const title = titleFor(topic, category.name);
+  const override = financialContentOverrides[variant];
   return {
     slug: slugify(`${category.slug}-${topic}-calculator`),
     title,
@@ -652,13 +654,13 @@ function buildCalculator(categorySlug: keyof typeof topicSeeds, index: number): 
     formulaType,
     variant,
     unitFamily: unitFamilySeeds[categorySlug][index],
-    longTailKeyword: longTailFor(topic, category.name, formulaType, variant),
-    metaDescription: descriptionFor(topic, category.name, formulaType, variant),
-    intro: introFor(topic, title, category.name, formulaType, variant),
-    summary: `Quickly estimate ${topic.toLowerCase()} outcomes for ${category.name.toLowerCase()} planning with a focused ${variant.replace(/-/g, ' ')} workflow.`,
-    article: articleFor(topic, category.name, formulaType, variant),
-    howItWorks: howItWorksFor(formulaType, topic, category.name),
-    faqs: faqsFor(topic, category.name, formulaType, variant),
+    longTailKeyword: override?.longTailKeyword ?? longTailFor(topic, category.name, formulaType, variant),
+    metaDescription: override?.metaDescription ?? descriptionFor(topic, category.name, formulaType, variant),
+    intro: override?.intro ?? introFor(topic, title, category.name, formulaType, variant),
+    summary: override?.summary ?? `Quickly estimate ${topic.toLowerCase()} outcomes for ${category.name.toLowerCase()} planning with a focused ${variant.replace(/-/g, ' ')} workflow.`,
+    article: override?.article ?? articleFor(topic, category.name, formulaType, variant),
+    howItWorks: override?.howItWorks ?? howItWorksFor(formulaType, topic, category.name),
+    faqs: override?.faqs ?? faqsFor(topic, category.name, formulaType, variant),
     relatedSlugs: [],
   };
 }
