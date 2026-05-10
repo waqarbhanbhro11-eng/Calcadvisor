@@ -1,5 +1,5 @@
+import { financialContentOverrides } from './financial-content-overrides';
 export type FormulaType =
-  import { financialContentOverrides } from './financial-content-overrides';
   | 'percentage'
   | 'ratio'
   | 'growth'
