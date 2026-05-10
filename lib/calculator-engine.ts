@@ -37,39 +37,6 @@ const safeDivide = (numerator: number, denominator: number, fallback = 0) => {
   return numerator / denominator;
 };
 
-/**
- * Validates a single input value with custom error messages
- */
-const validateInput = (value: unknown, fieldLabel: string): { valid: boolean; numericValue: number; error?: string } => {
-  const strValue = String(value ?? "").trim();
-  
-  // Empty check
-  if (strValue === "" || strValue === "0" && String(value) === "0") {
-    const parsed = number(value, NaN);
-    if (isNaN(parsed)) {
-      return { valid: false, numericValue: 0, error: "Please enter a value" };
-    }
-  }
-  
-  const numValue = number(value, NaN);
-  
-  // Check if parsed successfully
-  if (!Number.isFinite(numValue)) {
-    return { valid: false, numericValue: 0, error: "Please enter a value" };
-  }
-  
-  // Zero check
-  if (numValue === 0) {
-    return { valid: false, numericValue: 0, error: "Must be greater than 0" };
-  }
-  
-  // Negative check
-  if (numValue < 0) {
-    return { valid: false, numericValue: 0, error: "Please enter positive number" };
-  }
-  
-  return { valid: true, numericValue };
-};
 
 export function getFields(calculator: Calculator): CalculatorField[] {
   const variant = calculator.variant;
