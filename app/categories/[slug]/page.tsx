@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { categories, getCategoryBySlug, getCalculatorsByCategory, getCategoryUrl } from "@/data/calculators";
+import { categories, getCategoryBySlug, getCalculatorsByCategory } from "@/data/calculators";
 import { ToolCard } from "@/components/tool-card";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { siteConfig, defaultOgImage } from "@/lib/site";

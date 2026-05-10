@@ -394,7 +394,7 @@ function conversionValue(value: number, from: string, to: string, family?: strin
       const fromBase = from === "Binary" ? 2 : from === "Hex" ? 16 : 10;
       const toBase = to === "Binary" ? 2 : to === "Hex" ? 16 : 10;
       const asDecimal = parseInt(String(value), fromBase);
-      return Number.isFinite(asDecimal) ? asDecimal / 1 : asDecimal;
+      return Number.isFinite(asDecimal) ? asDecimal.toString(toBase).toUpperCase() : "0";
     }
     case "ascii":
       return value;
@@ -761,7 +761,7 @@ export function computeCalculator(calculator: Calculator, values: Record<string,
       const out = conversionValue(value, from, to, family);
       return {
         primaryLabel: "Converted value",
-        primaryValue: `${round(out)} ${to}`,
+        primaryValue: `${typeof out === 'number' ? round(out) : out} ${to}`,
         supporting: [
           { label: "Source", value: `${round(value)} ${from}` },
           { label: "Target", value: to },

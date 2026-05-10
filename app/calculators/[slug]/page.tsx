@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { calculators, getCalculatorBySlug, getCalculatorUrl } from "@/data/calculators";
+import { calculators, getCalculatorBySlug } from "@/data/calculators";
 import { CalculatorPage } from "@/components/calculator-page";
 import { siteConfig, defaultOgImage } from "@/lib/site";
 
