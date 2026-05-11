@@ -10,7 +10,7 @@ longTailKeyword?: string;
   metaDescription?: string;
   intro?: string;
   summary?: string;
-  article?: string;
+  article?: string[];
   howItWorks?: string;
   faqs?: any[];
 };
