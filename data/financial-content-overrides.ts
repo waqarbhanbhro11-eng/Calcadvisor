@@ -18,7 +18,7 @@ longTailKeyword?: string;
 export const financialContentOverrides: Record<string, CalculatorFieldOverride> = {
   "budget-planner": {
     inputs: "Monthly Income (before deductions); Fixed Expenses; Variable Expenses; Savings Target; Other Buffers",
-    formula: "Surplus = Income - (Fixed expenses + Variable expenses + Savings target + Buffers)",
+    formula: "Surplus = Income - (Fiiixed expenses + Variable expenses + Savings target + Buffers)",
     outputs: "Monthly Surplus/Deficit; Savings Rate; Needs vs Wants Split",
   },
   "net-worth": {
