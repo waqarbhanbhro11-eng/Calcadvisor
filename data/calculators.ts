@@ -659,7 +659,13 @@ function buildCalculator(categorySlug: keyof typeof topicSeeds, index: number): 
     intro: override?.intro ?? introFor(topic, title, category.name, formulaType, variant),
     summary: override?.summary ?? `Quickly estimate ${topic.toLowerCase()} outcomes for ${category.name.toLowerCase()} planning with a focused ${variant.replace(/-/g, ' ')} workflow.`,
     article: override?.article ?? articleFor(topic, category.name, formulaType, variant),
-    howItWorks: override?.howItWorks ?? howItWorksFor(formulaType, topic, category.name),
+    howItWorks: (
+  override?.howItWorks != null
+    ? Array.isArray(override.howItWorks)
+      ? override.howItWorks
+      : [override.howItWorks]
+    : howItWorksFor(formulaType, topic, category.name)
+),
     faqs: override?.faqs ?? faqsFor(topic, category.name, formulaType, variant),
     relatedSlugs: [],
   };
