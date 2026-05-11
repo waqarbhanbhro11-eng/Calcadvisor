@@ -11,7 +11,7 @@ longTailKeyword?: string;
   intro?: string;
   summary?: string;
   article?: string[];
-  howItWorks?: string;
+  howItWorks?: string[];
   faqs?: any[];
 };
 
