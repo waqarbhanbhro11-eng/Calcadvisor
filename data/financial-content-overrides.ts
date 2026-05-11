@@ -10,6 +10,9 @@ longTailKeyword?: string;
   metaDescription?: string;
   intro?: string;
   summary?: string;
+  article?: string;
+  howItWorks?: string;
+  faqs?: any[];
 };
 
 export const financialContentOverrides: Record<string, CalculatorFieldOverride> = {
