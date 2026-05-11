@@ -6,6 +6,10 @@ export type CalculatorFieldOverride = {
   inputs: string;
   formula: string;
   outputs: string;
+longTailKeyword?: string; 
+  metaDescription?: string;
+  intro?: string;
+  summary?: string;
 };
 
 export const financialContentOverrides: Record<string, CalculatorFieldOverride> = {
