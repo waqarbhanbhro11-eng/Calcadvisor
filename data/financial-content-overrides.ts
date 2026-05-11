@@ -1023,4 +1023,4 @@ export const financialContentOverrides: Record<string, CalculatorFieldOverride> 
   },
 } as const;
 
-export default calculatorFieldOverrides;
+export default financialContentOverrides;
