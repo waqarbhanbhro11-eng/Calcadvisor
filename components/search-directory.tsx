@@ -10,6 +10,7 @@ import { ArrowRight, Search } from "lucide-react";
 type Category = {
   slug: string;
   name: string;
+  description: string;
 };
 
 type Calculator = {
