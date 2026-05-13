@@ -1,5 +1,5 @@
 // Central index — imports all category files and re-exports everything
-// Drop this folder into your /data directory and update imports accordingly
+import type { Calculator } from './types';
 
 import { financialCalculators }   from './financial';
 import { loansCalculators }        from './loans';
