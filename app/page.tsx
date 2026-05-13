@@ -35,12 +35,19 @@ const webSiteSchema = {
   },
 };
 
-export default async function HomePage({ searchParams }: { searchParams?: Promise<{ q?: string }> }) {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ q?: string }>;
+}) {
   const resolvedParams = await searchParams;
+  const initialQuery = resolvedParams?.q ?? "";
+
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteSchema) }} />
-      <SearchDirectory categories={categories} calculators={calculators} initialQuery={resolvedParams?.q ?? ""} />
-    </main>
+    <SearchDirectory
+      categories={categories}
+      calculators={calculators}
+      initialQuery={initialQuery}
+    />
   );
 }
