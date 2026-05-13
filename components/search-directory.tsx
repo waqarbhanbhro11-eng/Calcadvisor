@@ -1,9 +1,36 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ArrowRight, Search } from "lucide-react";
 
-export function SearchDirectory({ categories, calculators, initialQuery = "" }: Props) {
+type Category = {
+  slug: string;
+  name: string;
+};
+
+type Calculator = {
+  slug: string;
+  title: string;
+  topic?: string;
+  categoryName?: string;
+  categorySlug: string;
+  longTailKeyword?: string;
+  summary?: string;
+};
+
+type Props = {
+  categories: Category[];
+  calculators: Calculator[];
+  initialQuery?: string;
+};
+
+export function SearchDirectory({
+  categories,
+  calculators,
+  initialQuery = "",
+}: Props) {
   const [query, setQuery] = useState(initialQuery);
   const router = useRouter();
   const pathname = usePathname();
@@ -26,17 +53,13 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
     router.replace(nextUrl, { scroll: false });
   };
 
-  // input:
-  // onChange={(e) => onSearchChange(e.target.value)}
-}
-export function SearchDirectory({ categories, calculators, initialQuery = "" }: Props) {
-  const [query, setQuery] = useState(initialQuery);
-
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return calculators;
+
     return calculators.filter((tool) =>
       [tool.title, tool.topic, tool.categoryName, tool.longTailKeyword, tool.summary]
+        .filter(Boolean)
         .join(" ")
         .toLowerCase()
         .includes(q)
@@ -56,7 +79,6 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
 
   return (
     <div className="space-y-12">
-      {/* Hero + Search */}
       <section
         id="search"
         className="overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-6 shadow-sm sm:p-10"
@@ -76,21 +98,22 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
           </div>
 
           <div className="space-y-4">
-            {/* Search box */}
             <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
               <label htmlFor="tool-search" className="mb-2 block text-sm font-medium text-slate-700">
                 Search calculators
               </label>
+
               <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                 <Search className="h-4 w-4 text-slate-400" />
                 <input
                   id="tool-search"
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e) => onSearchChange(e.target.value)}
                   placeholder="Try mortgage payment, BMI, compound interest..."
                   className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400"
                 />
               </div>
+
               {query && (
                 <p className="mt-2 text-xs text-slate-500">
                   {filtered.length} result{filtered.length !== 1 ? "s" : ""} found
@@ -98,13 +121,11 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
               )}
             </div>
 
-            {/* AI Advisor email waitlist */}
             <NotifyForm />
           </div>
         </div>
       </section>
 
-      {/* Categories */}
       <section id="categories" className="space-y-5">
         <div className="flex items-end justify-between gap-4">
           <div>
@@ -112,6 +133,7 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
             <p className="mt-2 text-sm text-slate-600">Browse the directory by topic.</p>
           </div>
         </div>
+
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {categories.map((category) => (
             <CategoryCard
@@ -123,7 +145,6 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
         </div>
       </section>
 
-      {/* Featured / Popular */}
       <section id="popular" className="space-y-5">
         <div className="flex items-end justify-between gap-4">
           <div>
@@ -134,6 +155,7 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
               High-intent tools across finance, health, and math.
             </p>
           </div>
+
           <Link
             href="/categories/financial"
             className="hidden items-center gap-2 text-sm font-medium text-slate-700 transition hover:text-slate-950 sm:inline-flex"
@@ -141,6 +163,7 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
             View financial tools <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
+
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {popular.map((tool) => (
             <ToolCard key={tool.slug} tool={tool} />
@@ -148,7 +171,6 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
         </div>
       </section>
 
-      {/* All tools by category */}
       <section className="space-y-8">
         <div>
           <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
@@ -170,6 +192,7 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
                 Browse category
               </Link>
             </div>
+
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {tools.map((tool) => (
                 <ToolCard key={tool.slug} tool={tool} />
@@ -186,4 +209,4 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
       </section>
     </div>
   );
-}
+      }
