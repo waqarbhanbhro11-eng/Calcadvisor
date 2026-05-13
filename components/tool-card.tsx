@@ -21,7 +21,7 @@ export function ToolCard({ tool }: { tool: Calculator }) {
         </div>
         <ArrowUpRight className="mt-1 h-4 w-4 shrink-0 text-slate-400 transition group-hover:text-slate-900" />
       </div>
-      <p className="mt-3 text-sm leading-6 text-slate-600 line-clamp-2">{tool.summary}</p>
+      <p className="mt-3 text-sm leading-6 text-slate-600 line-clamp-2">{tool.metaDescription}</p>
       <div className="mt-4 text-sm font-medium text-slate-900">Open calculator →</div>
     </Link>
   );
