@@ -1,17 +1,43 @@
 import type { MetadataRoute } from "next";
-import { getSiteUrl } from "@/data/calculators";
+
+const SITE_URL = "https://www.calcadvisor.com";
 
 export default function robots(): MetadataRoute.Robots {
-  const siteUrl = getSiteUrl();
   return {
     rules: [
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/_next/", "/api/"],
+        disallow: [
+          "/_next/",
+          "/api/",
+          "/static/",
+          "/*.json$",
+          "/*?*",
+        ],
+      },
+      {
+        userAgent: "GPTBot",
+        disallow: ["/"],
+      },
+      {
+        userAgent: "ChatGPT-User",
+        disallow: ["/"],
+      },
+      {
+        userAgent: "CCBot",
+        disallow: ["/"],
+      },
+      {
+        userAgent: "anthropic-ai",
+        disallow: ["/"],
+      },
+      {
+        userAgent: "Google-Extended",
+        disallow: ["/"],
       },
     ],
-    sitemap: `${siteUrl}/sitemap.xml`,
-    host: siteUrl,
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   };
-}
+        }
