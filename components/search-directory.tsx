@@ -1,5 +1,6 @@
 "use client";
 
+import type { Category, Calculator } from "@/data/types";
 import { NotifyForm } from "@/components/notify-form";
 import { CategoryCard } from "@/components/category-card";
 import { ToolCard } from "@/components/tool-card";
@@ -7,21 +8,6 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, Search } from "lucide-react";
-type Category = {
-  slug: string;
-  name: string;
-  description: string;
-};
-
-type Calculator = {
-  slug: string;
-  title: string;
-  topic?: string;
-  categoryName?: string;
-  categorySlug: string;
-  longTailKeyword?: string;
-  summary?: string;
-};
 
 type Props = {
   categories: Category[];
@@ -52,7 +38,9 @@ export function SearchDirectory({
     if (trimmed) params.set("q", trimmed);
     else params.delete("q");
 
-    const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+    const nextUrl = params.toString()
+      ? `${pathname}?${params.toString()}`
+      : pathname;
     router.replace(nextUrl, { scroll: false });
   };
 
@@ -95,14 +83,18 @@ export function SearchDirectory({
               Practical calculators for fast, confident decisions.
             </h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
-              200+ free tools across finance, loans, mortgage, savings, investment, tax, health,
-              math, conversion, business, and more. No sign-up required.
+              200+ free tools across finance, loans, mortgage, savings,
+              investment, tax, health, math, conversion, business, and more. No
+              sign-up required.
             </p>
           </div>
 
           <div className="space-y-4">
             <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-              <label htmlFor="tool-search" className="mb-2 block text-sm font-medium text-slate-700">
+              <label
+                htmlFor="tool-search"
+                className="mb-2 block text-sm font-medium text-slate-700"
+              >
                 Search calculators
               </label>
 
@@ -119,7 +111,8 @@ export function SearchDirectory({
 
               {query && (
                 <p className="mt-2 text-xs text-slate-500">
-                  {filtered.length} result{filtered.length !== 1 ? "s" : ""} found
+                  {filtered.length} result{filtered.length !== 1 ? "s" : ""}{" "}
+                  found
                 </p>
               )}
             </div>
@@ -132,8 +125,12 @@ export function SearchDirectory({
       <section id="categories" className="space-y-5">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-semibold tracking-tight text-slate-950">Categories</h2>
-            <p className="mt-2 text-sm text-slate-600">Browse the directory by topic.</p>
+            <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
+              Categories
+            </h2>
+            <p className="mt-2 text-sm text-slate-600">
+              Browse the directory by topic.
+            </p>
           </div>
         </div>
 
@@ -142,7 +139,9 @@ export function SearchDirectory({
             <CategoryCard
               key={category.slug}
               category={category}
-              count={calculators.filter((tool) => tool.categorySlug === category.slug).length}
+              count={calculators.filter(
+                (tool) => tool.categorySlug === category.slug
+              ).length}
             />
           ))}
         </div>
@@ -180,14 +179,18 @@ export function SearchDirectory({
             All tools by category
           </h2>
           <p className="mt-2 text-sm text-slate-600">
-            {query ? `Showing results for "${query}"` : "Search results update instantly as you type."}
+            {query
+              ? `Showing results for "${query}"`
+              : "Search results update instantly as you type."}
           </p>
         </div>
 
         {grouped.map(({ category, tools }) => (
           <div key={category.slug} className="space-y-4">
             <div className="flex items-center justify-between gap-3">
-              <h3 className="text-xl font-semibold text-slate-950">{category.name}</h3>
+              <h3 className="text-xl font-semibold text-slate-950">
+                {category.name}
+              </h3>
               <Link
                 href={`/categories/${category.slug}`}
                 className="text-sm font-medium text-slate-600 transition hover:text-slate-950"
