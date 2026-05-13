@@ -13,7 +13,12 @@ export default function robots(): MetadataRoute.Robots {
           "/api/",
           "/static/",
           "/*.json$",
-          "/*?*",
+          disallow: [
+  "/_next/",
+  "/api/",
+  "/static/",
+  "/*.json$",
+],
         ],
       },
       {
