@@ -1,19 +1,34 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Link from "next/link";
-import { Search, ArrowRight } from "lucide-react";
-import { Category, Calculator, getPopularCalculators } from "@/data/calculators";
-import { CategoryCard } from "./category-card";
-import { ToolCard } from "./tool-card";
-import { NotifyForm } from "./notify-form";
+import { useMemo, useState, useEffect } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-type Props = {
-  categories: Category[];
-  calculators: Calculator[];
-  initialQuery?: string;
-};
+export function SearchDirectory({ categories, calculators, initialQuery = "" }: Props) {
+  const [query, setQuery] = useState(initialQuery);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
+  useEffect(() => {
+    setQuery(initialQuery);
+  }, [initialQuery]);
+
+  const onSearchChange = (value: string) => {
+    setQuery(value);
+
+    const params = new URLSearchParams(searchParams.toString());
+    const trimmed = value.trim();
+
+    if (trimmed) params.set("q", trimmed);
+    else params.delete("q");
+
+    const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+    router.replace(nextUrl, { scroll: false });
+  };
+
+  // input:
+  // onChange={(e) => onSearchChange(e.target.value)}
+}
 export function SearchDirectory({ categories, calculators, initialQuery = "" }: Props) {
   const [query, setQuery] = useState(initialQuery);
 
