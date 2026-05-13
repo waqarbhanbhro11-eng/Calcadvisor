@@ -16,13 +16,11 @@ export function NotifyForm() {
 
     if (!trimmedEmail) {
       setError("Please enter your email address.");
-      setStatus("idle");
       return;
     }
 
     if (!emailRegex.test(trimmedEmail)) {
       setError("Please enter a valid email address.");
-      setStatus("idle");
       return;
     }
 
@@ -30,7 +28,10 @@ export function NotifyForm() {
     setStatus("loading");
 
     try {
-      localStorage.setItem("ca_waitlist", trimmedEmail);
+      // Store locally until the server-side waitlist API is ready
+      if (typeof window !== "undefined") {
+        localStorage.setItem("ca_waitlist", trimmedEmail);
+      }
       await new Promise((resolve) => window.setTimeout(resolve, 500));
       setStatus("success");
     } catch (caught) {
@@ -40,56 +41,58 @@ export function NotifyForm() {
     }
   };
 
-  return (
-    <div className="rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 p-6 text-white shadow-xl">
-      <div className="space-y-3">
-        <div className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.24em] text-white/90">
-          <span className="text-2xl">🤖</span>
-          AI Advisor — Coming Soon
+  if (status === "success") {
+    return (
+      <div className="rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 p-5 text-white shadow-lg">
+        <div className="flex items-center gap-3 font-semibold">
+          <span className="text-xl">✅</span>
+          <span>You&apos;re on the list!</span>
         </div>
-        <p className="max-w-xl text-sm text-white/90">
-          Get AI-powered insights personalized to your results
+        <p className="mt-2 text-sm text-white/90">
+          We&apos;ll notify you when AI Advisor launches.
         </p>
       </div>
+    );
+  }
 
-      <form className="mt-6 space-y-3" onSubmit={handleSubmit} noValidate>
-        <label className="block">
-          <span className="sr-only">Email address</span>
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="Enter your email address"
-            className="w-full rounded-xl border border-white/30 bg-white/20 px-4 py-3 text-base text-white placeholder:text-white/60 outline-none transition focus:border-white focus:bg-white/30"
-          />
+  return (
+    <div className="rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 p-5 text-white shadow-xl">
+      <div className="flex items-center gap-3">
+        <span className="text-2xl" aria-hidden="true">🤖</span>
+        <div>
+          <div className="text-sm font-semibold uppercase tracking-[0.15em] text-white/90">
+            AI Advisor — Coming Soon
+          </div>
+          <p className="mt-0.5 text-sm text-white/75">
+            Get personalized AI-powered insights on your results. Join the waitlist.
+          </p>
+        </div>
+      </div>
+
+      <form className="mt-4 flex gap-2" onSubmit={handleSubmit} noValidate>
+        <label className="sr-only" htmlFor="ai-waitlist-email">
+          Email address
         </label>
-
-        {error ? (
-          <p className="text-sm text-red-200">{error}</p>
-        ) : null}
-
+        <input
+          id="ai-waitlist-email"
+          type="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          placeholder="your@email.com"
+          className="min-w-0 flex-1 rounded-xl border border-white/30 bg-white/20 px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/60 transition focus:border-white focus:bg-white/30"
+        />
         <button
           type="submit"
-          className="w-full rounded-xl bg-white py-3 text-base font-bold text-purple-600 transition hover:bg-purple-50"
           disabled={status === "loading"}
+          className="shrink-0 rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-purple-600 transition hover:bg-purple-50 disabled:opacity-60"
         >
-          {status === "loading" ? "Saving..." : "Notify Me 🚀"}
+          {status === "loading" ? "..." : "Notify me"}
         </button>
       </form>
 
-      <p className="mt-3 text-sm text-white/80">Join 1,000+ users on the waitlist</p>
+      {error && <p className="mt-2 text-xs text-red-200">{error}</p>}
 
-      {status === "success" ? (
-        <div className="mt-5 rounded-3xl bg-gradient-to-r from-emerald-500 to-green-600 p-4 text-white shadow-lg">
-          <div className="flex items-center gap-3 font-semibold">
-            <span className="text-xl">✅</span>
-            <span>You&apos;re on the list!</span>
-          </div>
-          <p className="mt-2 text-sm text-white/90">
-            We&apos;ll notify you when AI Advisor launches.
-          </p>
-        </div>
-      ) : null}
+      <p className="mt-3 text-xs text-white/60">No spam. Unsubscribe any time.</p>
     </div>
   );
 }

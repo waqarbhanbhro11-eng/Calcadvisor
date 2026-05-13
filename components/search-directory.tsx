@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
@@ -6,6 +6,7 @@ import { Search, ArrowRight } from "lucide-react";
 import { Category, Calculator, getPopularCalculators } from "@/data/calculators";
 import { CategoryCard } from "./category-card";
 import { ToolCard } from "./tool-card";
+import { NotifyForm } from "./notify-form";
 
 type Props = {
   categories: Category[];
@@ -40,7 +41,11 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
 
   return (
     <div className="space-y-12">
-      <section id="search" className="overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-6 shadow-sm sm:p-10">
+      {/* Hero + Search */}
+      <section
+        id="search"
+        className="overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-6 shadow-sm sm:p-10"
+      >
         <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
@@ -50,39 +55,41 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
               Practical calculators for fast, confident decisions.
             </h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
-              Search 200 focused tools across finance, loans, mortgage, savings, investment, tax, health, math, conversion, business, and more.
+              200+ free tools across finance, loans, mortgage, savings, investment, tax, health,
+              math, conversion, business, and more. No sign-up required.
             </p>
           </div>
-          <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-            <label htmlFor="tool-search" className="mb-2 block text-sm font-medium text-slate-700">
-              Search calculators
-            </label>
-            <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-              <Search className="h-4 w-4 text-slate-400" />
-              <input
-                id="tool-search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Try mortgage payment, BMI, compound interest..."
-                className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400"
-              />
-            </div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl bg-slate-900 p-4 text-white">
-                <div className="text-xs uppercase tracking-[0.2em] text-slate-300">Popular</div>
-                <div className="mt-2 text-lg font-semibold">Top calculators</div>
-                <div className="mt-1 text-sm text-slate-300">Fast access to high-intent tools.</div>
+
+          <div className="space-y-4">
+            {/* Search box */}
+            <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+              <label htmlFor="tool-search" className="mb-2 block text-sm font-medium text-slate-700">
+                Search calculators
+              </label>
+              <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                <Search className="h-4 w-4 text-slate-400" />
+                <input
+                  id="tool-search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Try mortgage payment, BMI, compound interest..."
+                  className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400"
+                />
               </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div className="text-xs uppercase tracking-[0.2em] text-slate-400">AI Advisor</div>
-                <div className="mt-2 text-lg font-semibold text-slate-900">Coming Soon</div>
-                <div className="mt-1 text-sm text-slate-600">Smart guidance will arrive later.</div>
-              </div>
+              {query && (
+                <p className="mt-2 text-xs text-slate-500">
+                  {filtered.length} result{filtered.length !== 1 ? "s" : ""} found
+                </p>
+              )}
             </div>
+
+            {/* AI Advisor email waitlist */}
+            <NotifyForm />
           </div>
         </div>
       </section>
 
+      {/* Categories */}
       <section id="categories" className="space-y-5">
         <div className="flex items-end justify-between gap-4">
           <div>
@@ -92,18 +99,30 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
         </div>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {categories.map((category) => (
-            <CategoryCard key={category.slug} category={category} count={calculators.filter((tool) => tool.categorySlug === category.slug).length} />
+            <CategoryCard
+              key={category.slug}
+              category={category}
+              count={calculators.filter((tool) => tool.categorySlug === category.slug).length}
+            />
           ))}
         </div>
       </section>
 
+      {/* Featured / Popular */}
       <section id="popular" className="space-y-5">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-semibold tracking-tight text-slate-950">Popular calculators</h2>
-            <p className="mt-2 text-sm text-slate-600">Frequently used tools in a compact list style.</p>
+            <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
+              Featured calculators
+            </h2>
+            <p className="mt-2 text-sm text-slate-600">
+              High-intent tools across finance, health, and math.
+            </p>
           </div>
-          <Link href="/categories/financial" className="hidden items-center gap-2 text-sm font-medium text-slate-700 transition hover:text-slate-950 sm:inline-flex">
+          <Link
+            href="/categories/financial"
+            className="hidden items-center gap-2 text-sm font-medium text-slate-700 transition hover:text-slate-950 sm:inline-flex"
+          >
             View financial tools <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -114,17 +133,25 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
         </div>
       </section>
 
+      {/* All tools by category */}
       <section className="space-y-8">
         <div>
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-950">All tools by category</h2>
-          <p className="mt-2 text-sm text-slate-600">Search results update instantly as you type.</p>
+          <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
+            All tools by category
+          </h2>
+          <p className="mt-2 text-sm text-slate-600">
+            {query ? `Showing results for "${query}"` : "Search results update instantly as you type."}
+          </p>
         </div>
 
         {grouped.map(({ category, tools }) => (
           <div key={category.slug} className="space-y-4">
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-xl font-semibold text-slate-950">{category.name}</h3>
-              <Link href={`/categories/${category.slug}`} className="text-sm font-medium text-slate-600 transition hover:text-slate-950">
+              <Link
+                href={`/categories/${category.slug}`}
+                className="text-sm font-medium text-slate-600 transition hover:text-slate-950"
+              >
                 Browse category
               </Link>
             </div>
@@ -138,7 +165,7 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
 
         {grouped.length === 0 && (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-slate-600">
-            No calculators matched your search.
+            No calculators matched your search. Try a different keyword.
           </div>
         )}
       </section>
