@@ -1,11 +1,12 @@
-import { NotifyForm } from "@/components/notify-form";
 "use client";
 
+import { NotifyForm } from "@/components/notify-form";
+import { CategoryCard } from "@/components/category-card";
+import { ToolCard } from "@/components/tool-card";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, Search } from "lucide-react";
-
 type Category = {
   slug: string;
   name: string;
