@@ -75,7 +75,7 @@ export function SearchDirectory({
       .filter((group) => group.tools.length > 0);
   }, [categories, filtered]);
 
-  const popular = getPopularCalculators();
+  const popular = useMemo(() => calculators.slice(0, 6), [calculators]);
 
   return (
     <div className="space-y-12">
