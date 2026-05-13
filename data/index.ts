@@ -55,8 +55,25 @@ export function getCategoryBySlug(slug: string) {
 export function getCalculatorsByCategory(slug: string) {
   return calculators.filter(c => c.categorySlug === slug);
 }
-export function getPopularCalculators() {
-  return calculators.slice(0, 12);
+export function getPopularCalculators(): Calculator[] {
+  const wanted = [
+    "mortgage-mortgage-payment-calculator",
+    "health-bmi-calculator",
+    "loans-loan-payment-calculator",
+    "investment-compound-interest-calculator",
+    "tax-income-tax-calculator",
+    "financial-budget-planner-calculator",
+    "business-profit-margin-calculator",
+    "math-percentage-calculator",
+    "retirement-safe-withdrawal-rate-calculator",
+    "health-calorie-needs-calculator",
+    "other-tools-age-calculator",
+    "tax-sales-tax-calculator",
+  ];
+  const result = wanted
+    .map((slug) => calculators.find((c) => c.slug === slug))
+    .filter(Boolean) as Calculator[];
+  return result.length >= 6 ? result : calculators.slice(0, 12);
 }
 export function getSiteUrl() {
   return process.env.NEXT_PUBLIC_SITE_URL || 'https://calcadvisor.com';
