@@ -17,7 +17,7 @@ export const siteConfig = {
     "business calculator",
     "calculator directory",
   ],
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://calcadvisor.com",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://www.calcadvisor.com",
   creator: "CalcAdvisor",
 };
 
