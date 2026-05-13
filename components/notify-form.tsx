@@ -1,3 +1,4 @@
+import { NotifyForm } from "@/components/notify-form";
 "use client";
 
 import { FormEvent, useState } from "react";
