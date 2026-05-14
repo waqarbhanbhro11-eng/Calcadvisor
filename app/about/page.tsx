@@ -14,6 +14,14 @@ export const metadata: Metadata = {
     description:
       "CalcAdvisor is a free calculator directory with 200+ tools for finance, math, health, and everyday decisions.",
     siteName: siteConfig.name,
+    images: [{ url: "/og-default.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About CalcAdvisor",
+    description:
+      "CalcAdvisor is a free calculator directory with 200+ tools for finance, math, health, and everyday decisions.",
+    images: ["/og-default.png"],
   },
 };
 
