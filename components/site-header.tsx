@@ -2,10 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Calculator, Search, ChevronDown, Menu, X } from "lucide-react";
+import Image from "next/image";
+import { Search, ChevronDown, Menu, X } from "lucide-react";
 import { categories } from "@/data/calculators";
-
-const SITE_NAME = "CalcAdvisor";
 
 // Quick-access categories shown as direct links in desktop nav
 const QUICK_CATS = ["financial", "health", "math", "tax"];
@@ -25,13 +24,16 @@ export function SiteHeader() {
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-2 font-semibold tracking-tight text-slate-900"
+          className="flex items-center"
           onClick={() => setMobileOpen(false)}
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-sm">
-            <Calculator className="h-4 w-4" aria-hidden="true" />
-          </span>
-          <span className="text-lg">{SITE_NAME}</span>
+          <Image
+            src="/logo.svg"
+            alt="CalcAdvisor"
+            width={160}
+            height={36}
+            priority
+          />
         </Link>
 
         {/* Desktop nav */}
@@ -105,7 +107,7 @@ export function SiteHeader() {
         {/* Right side */}
         <div className="flex items-center gap-2">
           <Link
-            href="/#search"
+            href="/calculators#search"
             className="hidden items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 sm:inline-flex"
           >
             <Search className="h-4 w-4" aria-hidden="true" />
