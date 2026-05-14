@@ -16,11 +16,13 @@ export const metadata: Metadata = {
     title: "Calculator Directory | CalcAdvisor",
     description: siteConfig.description,
     siteName: siteConfig.name,
+    images: [{ url: "/og-default.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Calculator Directory | CalcAdvisor",
     description: siteConfig.description,
+    images: ["/og-default.png"],
   },
 };
 
