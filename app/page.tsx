@@ -6,12 +6,8 @@ import { siteConfig } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Free Online Calculator Directory — 200+ Tools | CalcAdvisor",
   alternates: {
-    canonical: "https://www.calcadvisor.com",  
+    canonical: "https://www.calcadvisor.com",
   },
-  openGraph: {
-    url: "https://www.calcadvisor.com",        
-  },
-};
   openGraph: {
     type: "website",
     url: siteConfig.url,
@@ -57,9 +53,7 @@ export default function HomePage() {
       <section className="space-y-4">
         <div>
           <h2 className="text-2xl font-semibold">Popular categories</h2>
-          <p className="text-slate-600">
-            Browse the directory by topic.
-          </p>
+          <p className="text-slate-600">Browse the directory by topic.</p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -92,4 +86,4 @@ export default function HomePage() {
       </section>
     </main>
   );
-        }
+}
