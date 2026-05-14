@@ -177,7 +177,7 @@ export function SiteHeader() {
           {/* Search CTA */}
           <div className="mt-3 border-t border-slate-100 pt-3">
             <Link
-              href="/#search"
+              href="/calculators#search"
               className="flex w-full items-center justify-center gap-2 rounded-full bg-slate-900 py-2.5 text-sm font-medium text-white"
               onClick={() => setMobileOpen(false)}
             >
