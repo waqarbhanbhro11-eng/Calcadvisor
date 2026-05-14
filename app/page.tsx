@@ -4,12 +4,14 @@ import { categories } from "@/data/calculators";
 import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Calculator Directory",
-  description: siteConfig.description,
-  keywords: siteConfig.keywords,
+  title: "Free Online Calculator Directory — 200+ Tools | CalcAdvisor",
   alternates: {
-    canonical: "/",
+    canonical: "https://www.calcadvisor.com",  
   },
+  openGraph: {
+    url: "https://www.calcadvisor.com",        
+  },
+};
   openGraph: {
     type: "website",
     url: siteConfig.url,
