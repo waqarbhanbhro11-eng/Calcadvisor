@@ -36,6 +36,13 @@ const nextConfig = {
 
   async redirects() {
     return [
+      // non-www → www (canonical enforce)
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "calcadvisor.com" }],
+        destination: "https://www.calcadvisor.com/:path*",
+        permanent: true,
+      },
       // Canonical: strip trailing slashes
       {
         source: "/:path+/",
