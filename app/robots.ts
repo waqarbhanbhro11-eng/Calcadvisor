@@ -6,7 +6,14 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/_next/", "/api/", "/static/", "/*.json$"],
+      disallow: [
+        "/_next/",
+        "/api/",
+        "/static/",
+        "/*.json",
+        "/calculators/*/opengraph-image",
+        "/categories/*/opengraph-image",
+      ],
     },
     sitemap: `${siteConfig.url}/sitemap.xml`,
   };
