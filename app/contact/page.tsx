@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Contact — CalcAdvisor",
   description:
     "Get in touch with the CalcAdvisor team. Report a bug, suggest a new calculator, or ask a question.",
-  alternates: { canonical: "/contact" },
+  alternates: { canonical: `${siteConfig.url}/contact` },
   openGraph: {
     type: "website",
     url: `${siteConfig.url}/contact`,
