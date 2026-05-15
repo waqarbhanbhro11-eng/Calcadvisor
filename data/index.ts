@@ -76,7 +76,7 @@ export function getPopularCalculators(): Calculator[] {
   return result.length >= 6 ? result : calculators.slice(0, 12);
 }
 export function getSiteUrl() {
-  return process.env.NEXT_PUBLIC_SITE_URL || 'https://calcadvisor.com';
+  return process.env.NEXT_PUBLIC_SITE_URL || 'https://www.calcadvisor.com';
 }
 export function getCalculatorUrl(slug: string) { return `/calculators/${slug}`; }
 export function getCategoryUrl(slug: string)   { return `/categories/${slug}`; }
