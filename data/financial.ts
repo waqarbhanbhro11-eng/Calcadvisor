@@ -330,7 +330,7 @@ export const financialCalculators: Calculator[] = [
     formulaType: "annualIncome",
     categorySlug: "financial",
     categoryName: "Financial",
-    formulaType: "Annual Income",
+    topic: "Annual Income",
     formula: "Annual Income = Hourly Rate × Hours per Week × Weeks per Year + Bonuses",
     inputs: ["Hourly Rate", "Hours Per Week", "Weeks Per Year", "Bonuses"],
     outputs: ["Annual Income", "Monthly Income", "Weekly Income"],
