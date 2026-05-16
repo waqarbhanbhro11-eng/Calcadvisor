@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useRef, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Search, X, Zap, TrendingUp, Shield, ArrowRight } from "lucide-react";
 import { Category, Calculator, getPopularCalculators } from "@/data/calculators";
@@ -37,21 +38,13 @@ function searchCalculators(calculators: Calculator[], query: string): Calculator
 
       let score = 0;
 
-      // Title — highest priority
       if (title.startsWith(q))        score += 200;
       else if (wordBound.test(title)) score += 100;
       else if (title.includes(q))     score += 40;
 
-      // Topic
       if (wordBound.test(topic))      score += 60;
-
-      // Category
       if (wordBound.test(category))   score += 50;
-
-      // Long-tail keyword
       if (wordBound.test(longTail))   score += 40;
-
-      // Summary — word boundary only (avoids "wage"→"age" false matches)
       if (wordBound.test(summary))    score += 15;
 
       return { tool, score };
@@ -61,7 +54,7 @@ function searchCalculators(calculators: Calculator[], query: string): Calculator
     .map(({ tool }) => tool);
 }
 
-// ─── Get "related" calculators: same category, not already in results ───────
+// ─── Related calculators: same category, not in results ────────────────────
 function getRelated(
   results: Calculator[],
   all: Calculator[],
@@ -69,7 +62,6 @@ function getRelated(
 ): Calculator[] {
   if (!results.length) return [];
   const resultSlugs = new Set(results.map((t) => t.slug));
-  // Collect category slugs from top results
   const categorySlugs = [...new Set(results.slice(0, 5).map((t) => t.categorySlug))];
   return all
     .filter((t) => !resultSlugs.has(t.slug) && categorySlugs.includes(t.categorySlug))
@@ -78,14 +70,14 @@ function getRelated(
 
 // ───────────────────────────────────────────────────────────────────────────
 export function SearchDirectory({ categories, calculators, initialQuery = "" }: Props) {
-  const [query, setQuery] = useState(initialQuery);
+  const urlParams = useSearchParams();
+  const [query, setQuery] = useState(initialQuery || urlParams.get("q") || "");
   const inputRef = useRef<HTMLInputElement>(null);
   const popular = getPopularCalculators();
 
-  // Auto-focus when initialQuery is set (from URL param)
   useEffect(() => {
-    if (initialQuery && inputRef.current) inputRef.current.focus();
-  }, [initialQuery]);
+    if (query && inputRef.current) inputRef.current.focus();
+  }, []);
 
   const results = useMemo(
     () => searchCalculators(calculators, query),
@@ -107,7 +99,6 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
         id="search"
         className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
       >
-        {/* subtle dot-grid texture */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 opacity-[0.035]"
@@ -118,13 +109,11 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
         />
 
         <div className="relative p-6 sm:p-10">
-          {/* Badge */}
           <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
             Free · No sign-up · Instant results
           </div>
 
-          {/* Headline */}
           <h1 className="mt-4 max-w-2xl text-4xl font-extrabold tracking-tight text-slate-950 sm:text-5xl leading-[1.1]">
             The calculator directory<br className="hidden sm:block" />
             that just works.
@@ -134,7 +123,6 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
             health, math, and more. No account needed.
           </p>
 
-          {/* Stats */}
           <div className="mt-7 flex flex-wrap gap-6">
             {STATS.map(({ value, label, icon: Icon }) => (
               <div key={label} className="flex items-center gap-2.5">
@@ -149,7 +137,6 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
             ))}
           </div>
 
-          {/* Search box */}
           <div className="mt-7 flex max-w-lg items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm transition-all focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100">
             <Search className="h-4 w-4 shrink-0 text-slate-400" />
             <input
@@ -208,14 +195,11 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
             </section>
           )}
 
-          {/* Related calculators */}
           {related.length > 0 && (
             <section>
-              <div className="mb-5 flex items-center justify-between gap-4">
-                <h2 className="text-xl font-extrabold tracking-tight text-slate-950">
-                  You might also need
-                </h2>
-              </div>
+              <h2 className="mb-5 text-xl font-extrabold tracking-tight text-slate-950">
+                You might also need
+              </h2>
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {related.map((tool) => (
                   <ToolCard key={tool.slug} tool={tool} />
@@ -226,10 +210,9 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
         </>
       )}
 
-      {/* ── DEFAULT VIEW (no search) ────────────────────────────────────────── */}
+      {/* ── DEFAULT VIEW ────────────────────────────────────────────────────── */}
       {!isSearching && (
         <>
-          {/* Categories grid */}
           <section id="categories">
             <div className="mb-6">
               <h2 className="text-2xl font-extrabold tracking-tight text-slate-950">
@@ -250,7 +233,6 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
             </div>
           </section>
 
-          {/* Featured / popular */}
           <section id="popular">
             <div className="mb-6 flex items-end justify-between gap-4">
               <div>
@@ -275,7 +257,6 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
             </div>
           </section>
 
-          {/* All tools grouped by category */}
           <section>
             <div className="mb-6">
               <h2 className="text-2xl font-extrabold tracking-tight text-slate-950">
@@ -285,7 +266,6 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
                 Full directory, grouped by category
               </p>
             </div>
-
             <div className="space-y-10">
               {categories.map((category) => {
                 const tools = calculators.filter(
@@ -327,5 +307,4 @@ export function SearchDirectory({ categories, calculators, initialQuery = "" }: 
       )}
     </div>
   );
-        }
-                         
+}
