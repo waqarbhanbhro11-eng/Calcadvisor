@@ -298,7 +298,7 @@ export const financialCalculators: Calculator[] = [
     topic: "Salary to Hourly",
     categorySlug: "financial",
     categoryName: "Financial",
-    formulaType: "ratio",
+    formulaType: "salaryToHourly",
     formula: "Hourly Rate = Annual Salary / (Hours per Week × Weeks per Year)",
     inputs: ["Annual Salary", "Hours Per Week", "Weeks Per Year"],
     outputs: ["Hourly Rate", "Daily Rate", "Weekly Rate"],
