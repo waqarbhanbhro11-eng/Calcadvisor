@@ -8,10 +8,10 @@ import { siteConfig } from "@/lib/site";
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: siteConfig.title,
-    template: `%s — CalcAdvisor`,
+    default: "Calculate Anything. Free. Instant. No Sign-up | CalcAdvisor",
+    template: `%s | CalcAdvisor`,
   },
-  description: siteConfig.description,
+  description: "200+ free calculators for mortgage payments, loan EMI, compound interest, BMI, tax estimates, budget planning, and more. No sign-up. Instant results. Trusted tools for everyday decisions.",
   keywords: siteConfig.keywords,
   authors: [{ name: siteConfig.name, url: siteConfig.url }],
   creator: siteConfig.creator,
@@ -28,18 +28,29 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  icons: {
+    icon: [
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon.ico" },
+    ],
+    apple: "/apple-touch-icon.png",
+    other: [
+      { rel: "mask-icon", url: "/logo.svg", color: "#1e40af" },
+    ],
+  },
   openGraph: {
     type: "website",
     url: siteConfig.url,
-    title: siteConfig.title,
-    description: siteConfig.description,
+    title: "CalcAdvisor — 200+ Free Calculators for Finance, Math & Health",
+    description: "Free calculators for mortgage, loans, BMI, tax, compound interest, budget planner and 200+ more. No sign-up. Instant answers.",
     siteName: siteConfig.name,
-    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: siteConfig.name }],
+    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "CalcAdvisor — Free Calculator Directory" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: siteConfig.title,
-    description: siteConfig.description,
+    title: "CalcAdvisor — 200+ Free Calculators",
+    description: "Free calculators for mortgage, loans, BMI, tax, compound interest and 200+ more. No sign-up required.",
     images: ["/og-default.png"],
   },
 };
@@ -56,7 +67,12 @@ const organizationSchema = {
   name: siteConfig.name,
   url: siteConfig.url,
   description: siteConfig.description,
-  logo: `${siteConfig.url}/og-default.png`,
+  logo: {
+    "@type": "ImageObject",
+    url: `${siteConfig.url}/logo.svg`,
+    width: 512,
+    height: 512,
+  },
   sameAs: [],
 };
 
@@ -84,4 +100,4 @@ export default function RootLayout({
       </body>
     </html>
   );
-    }
+}
