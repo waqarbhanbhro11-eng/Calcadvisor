@@ -4,7 +4,8 @@ export type FormulaType =
   | 'percentage' | 'ratio' | 'growth' | 'compound' | 'breakEven'
   | 'loan' | 'mortgage' | 'annuity' | 'withdrawal' | 'tax'
   | 'bmi' | 'health' | 'pace' | 'dateSpan' | 'timeSum'
-  | 'area' | 'geometry' | 'statistics' | 'conversion' | 'mathOps' | 'budget';
+  | 'area' | 'geometry' | 'statistics' | 'conversion' | 'mathOps' | 'budget'
+  | 'salaryToHourly' | 'annualIncome' | 'cashRunway';
 
 export type Category = {
   slug: string;
