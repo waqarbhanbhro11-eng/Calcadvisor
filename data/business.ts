@@ -139,7 +139,7 @@ export const businessCalculators: Calculator[] = [
     topic: "Cash Runway",
     categorySlug: "business",
     categoryName: "Business",
-    formulaType: "compound",
+    formulaType: "cashRunway",
     formula: "Runway Months = Cash Balance / (Monthly Burn - Monthly Revenue)",
     inputs: ["Cash Balance", "Monthly Burn", "Monthly Revenue"],
     outputs: ["Runway Months", "Burn Rate", "Cash Left"],
