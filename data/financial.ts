@@ -327,7 +327,7 @@ export const financialCalculators: Calculator[] = [
     slug: "financial-annual-income-calculator",
     variant: "annual-income",
     title: "Annual Income Calculator",
-    topic: "Annual Income",
+    formulaType: "annualIncome",
     categorySlug: "financial",
     categoryName: "Financial",
     formulaType: "ratio",
