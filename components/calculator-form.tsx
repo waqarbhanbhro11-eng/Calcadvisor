@@ -128,9 +128,7 @@ export function CalculatorForm({ calculator }: Props) {
         )}
 
         <div className="mx-5 mb-5 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs text-slate-500">
-          {["health","math","conversion"].includes(calculator.categorySlug ?? "")
-            ? "For informational purposes only. Not a substitute for professional medical advice."
-            : "For informational purposes only. Not financial or legal advice."}
+  For informational purposes only. Results are estimates and may vary.
         </div>
       </div>
     </div>
