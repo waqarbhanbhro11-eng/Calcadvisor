@@ -7,26 +7,26 @@ import { ToolCard } from "@/components/tool-card";
 import { getPopularCalculators } from "@/data/calculators";
 
 export const metadata: Metadata = {
-  title: "Calculator Directory",
-  description: siteConfig.description,
+  title: "Calculate Anything. Free. Instant. No Sign-up | CalcAdvisor",
+  description: "200+ free calculators for mortgage payments, loan EMI, compound interest, BMI, tax estimates, budget planning, and more. No sign-up. Instant results. Trusted tools for everyday decisions.",
   keywords: siteConfig.keywords,
   alternates: { canonical: "/" },
+  robots: { index: true, follow: true },
   openGraph: {
     type: "website",
     url: siteConfig.url,
-    title: "Calculator Directory | CalcAdvisor",
-    description: siteConfig.description,
+    title: "CalcAdvisor — 200+ Free Calculators for Finance, Math & Health",
+    description: "Free calculator directory. Mortgage, loans, BMI, tax, compound interest, budget planner and 200+ more tools. No sign-up. Instant answers.",
     siteName: siteConfig.name,
-    images: [{ url: "/og-default.png", width: 1200, height: 630 }],
+    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "CalcAdvisor — Free Calculator Directory" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Calculator Directory | CalcAdvisor",
-    description: siteConfig.description,
+    title: "CalcAdvisor — 200+ Free Calculators",
+    description: "Free calculator directory. Mortgage, loans, BMI, tax, compound interest and 200+ more. No sign-up required.",
     images: ["/og-default.png"],
   },
 };
-
 export default function HomePage() {
   const popular = getPopularCalculators();
 
